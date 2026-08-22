@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elliott Wave Signal Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">EW</span>
+      <div>
+        <h1>Elliott Wave Signal Dashboard</h1>
+        <p class="subtitle">Live BUY / SELL tracking across the scanned universe</p>
+      </div>
+    </div>
+    <div class="last-updated" id="lastUpdated">Loading...</div>
+  </header>
+
+  <section class="stats" id="statsRow"></section>
+
+  <section class="controls">
+    <input type="text" id="searchBox" placeholder="Search ticker (e.g. AAPL)..." />
+    <select id="signalFilter">
+      <option value="ALL">All Signals</option>
+      <option value="BUY">BUY only</option>
+      <option value="SELL">SELL only</option>
+      <option value="WAIT">WAIT only</option>
+    </select>
+    <select id="fundFilter">
+      <option value="ALL">All Fundamentals</option>
+      <option value="FUNDAMENTALLY STRONG">Fundamentally Strong</option>
+      <option value="MODERATE">Moderate</option>
+      <option value="FUNDAMENTALLY WEAK">Fundamentally Weak</option>
+      <option value="UNKNOWN">Unknown / Pending</option>
+    </select>
+    <button id="exportBtn">Export CSV</button>
+  </section>
+
+  <section class="table-wrap">
+    <table id="signalTable">
+      <thead>
+        <tr>
+          <th data-key="symbol">Symbol ⬍</th>
+          <th data-key="price">Price ⬍</th>
+          <th data-key="signal">Signal ⬍</th>
+          <th data-key="degree">Elliott Degree ⬍</th>
+          <th data-key="wave">Wave ⬍</th>
+          <th data-key="latest_buy_date">Latest BUY Date ⬍</th>
+          <th data-key="latest_sell_date">Latest SELL Date ⬍</th>
+          <th data-key="fundamental">Fundamentals ⬍</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p id="emptyState" class="empty-state" style="display:none;">No tickers match your filters.</p>
+  </section>
+
+  <footer>
+    <p>Data refreshed automatically from the Elliott Wave scan workbook. Not investment advice.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
