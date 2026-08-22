@@ -1,0 +1,60 @@
+name: Update Dashboard Data
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '30 3 * * 6'   # shortly after the scan repo's Friday 10 PM EST run
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch latest workbook from scanner repo
+        env:
+          SOURCE_REPO_TOKEN: ${{ secrets.SOURCE_REPO_TOKEN }}
+        run: |
+          python - <<'PYEOF'
+          import os, requests
+
+          owner = "soumyabandi252"
+          repo = "ElliottWaveApp3"
+          token = os.environ["SOURCE_REPO_TOKEN"]
+          headers = {"Authorization": f"Bearer {token}"}
+
+          r = requests.get(f"https://api.github.com/repos/{owner}/{repo}/contents/", headers=headers)
+          r.raise_for_status()
+          files = [f for f in r.json() if f["name"].startswith("Elliott_Wave_NASDAQ_Composite_Master_Workbook")]
+          if not files:
+              raise SystemExit("No workbook found in source repo.")
+          files.sort(key=lambda f: f["name"])
+          latest = files[-1]
+
+          dl = requests.get(latest["download_url"], headers=headers)
+          dl.raise_for_status()
+          with open(latest["name"], "wb") as out:
+              out.write(dl.content)
+          print(f"Downloaded {latest['name']}")
+          PYEOF
+
+      - name: Convert workbook to dashboard JSON
+        run: python export_to_json.py
+
+      - name: Commit updated dashboard data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/data.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "Update dashboard data [skip ci]"
+          git push
